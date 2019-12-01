@@ -1,21 +1,37 @@
 function loadScript() {
   const input = document.querySelector("#input");
 
+  //retrieve items in local storage and display them when the page reloads
+  //localStorage.getItem("imgs");
+  if (localStorage.getItem("images")) {
+    JSON.parse(localStorage.getItem("images")).forEach(imgSrc => {
+      const img = document.createElement("img");
+      img.setAttribute("height", "20%");
+      img.setAttribute("width", "20%");
+      img.src = imgSrc;
+      document.querySelector("body").appendChild(img);
+    });
+  }
+
   function addFile(event) {
-    const files = event.target.files; // Files object, we are gonna assume length 1
-    const imageFile = files[0];
+    const file = event.target.files[0]; // Files object, we are gonna assume length 1
 
     const img = document.createElement("img");
-    img.setAttribute("height", 200);
-    img.setAttribute("width", 300);
+    img.setAttribute("height", "20%");
+    img.setAttribute("width", "20%");
 
     const fileReader = new FileReader();
+    //note: the event below is the reading of the file
     fileReader.onload = e => {
       img.src = e.target.result;
       document.querySelector("body").appendChild(img);
+      //store in local storage
+      const imagesArr = JSON.parse(localStorage.getItem("images")) || [];
+      imagesArr.push(e.target.result);
+      localStorage.setItem("images", JSON.stringify(imagesArr));
     };
-
-    fileReader.readAsDataURL(imageFile);
+    //this reads the file, and triggers onload event (line 12)
+    fileReader.readAsDataURL(file);
   }
 
   input.addEventListener("change", addFile);
