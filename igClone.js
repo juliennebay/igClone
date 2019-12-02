@@ -29,6 +29,15 @@ function loadScript() {
       const imagesArr = JSON.parse(localStorage.getItem("images")) || [];
       imagesArr.push(e.target.result);
       localStorage.setItem("images", JSON.stringify(imagesArr));
+
+      //send a POST request to the server, in order to store the image data (e.target.result)
+      fetch("http://localhost:3000/add_image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: e.target.result
+      }).then();
     };
     //this reads the file, and triggers onload event (line 12)
     fileReader.readAsDataURL(file);
