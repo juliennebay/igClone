@@ -1,17 +1,21 @@
 function loadScript() {
   const input = document.querySelector("#input");
 
-  //retrieve items in local storage and display them when the page reloads
-  //localStorage.getItem("imgs");
-  if (localStorage.getItem("images")) {
-    JSON.parse(localStorage.getItem("images")).forEach(imgSrc => {
-      const img = document.createElement("img");
-      img.setAttribute("height", "20%");
-      img.setAttribute("width", "20%");
-      img.src = imgSrc;
-      document.querySelector("body").appendChild(img);
+  //replace the local storage "get items" with getting images from the server
+  //(in igClone-server.js, we'll write another "else if" condition)
+
+  fetch("/images") //it'll use the current address, so no need to add "http://localhost:3000/images"
+    .then(response => response.json())
+    .then(imageURLs => {
+      //for each image, create img element and attach source
+      imageURLs.forEach(imageURL => {
+        const img = document.createElement("img");
+        img.setAttribute("height", "20%");
+        img.setAttribute("width", "20%");
+        img.src = imageURL;
+        document.querySelector("body").appendChild(img);
+      });
     });
-  }
 
   function addFile(event) {
     const file = event.target.files[0]; // Files object, we are gonna assume length 1
@@ -25,13 +29,9 @@ function loadScript() {
     fileReader.onload = e => {
       img.src = e.target.result;
       document.querySelector("body").appendChild(img);
-      //store in local storage
-      const imagesArr = JSON.parse(localStorage.getItem("images")) || [];
-      imagesArr.push(e.target.result);
-      localStorage.setItem("images", JSON.stringify(imagesArr));
 
       //send a POST request to the server, in order to store the image data (e.target.result)
-      fetch("http://localhost:3000/add_image", {
+      fetch("/add_image", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
