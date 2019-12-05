@@ -18,21 +18,35 @@ function addFile(event) {
         "Content-Type": "application/json"
       },
       body: e.target.result
-    }).then();
+    });
   };
   //this reads the file, and triggers onload event (line 12)
   fileReader.readAsDataURL(file);
 }
 
+function signUp() {
+  //make a POST request to store the email address in the server (there will be a file)
+  fetch("/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: document.querySelector("#emailAddressInput").value
+  });
+}
+
 function loadScript() {
+  const signUpPage = document.querySelector("#signUpPage");
+  const imagesPage = document.querySelector("#imagesPage");
   if (window.location.pathname === "/signup") {
-    const input = document.querySelector("#input");
-    input.hidden = true;
-    const p = document.createElement("p");
-    p.textContent = "Welcome puppies";
-    document.querySelector("body").appendChild(p);
+    imagesPage.hidden = true;
+    signUpPage.hidden = false;
+    const button = document.querySelector("#button");
+    button.addEventListener("click", signUp);
   } else {
-    const input = document.querySelector("#input");
+    imagesPage.hidden = false;
+    signUpPage.hidden = true;
+    const fileInput = document.querySelector("#fileInput");
     fetch("/images") //it'll use the current address, so no need to add "http://localhost:3000/images"
       .then(response => response.json())
       .then(imageURLs => {
@@ -45,7 +59,7 @@ function loadScript() {
           document.querySelector("body").appendChild(img);
         });
       });
-    input.addEventListener("change", addFile);
+    fileInput.addEventListener("change", addFile);
   }
   //replace the local storage "get items" with getting images from the server
   //(in igClone-server.js, we'll write another "else if" condition)
