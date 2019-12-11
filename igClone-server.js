@@ -45,6 +45,8 @@ function addImage(request, response) {
     //the line below will update the file (images.json)
     fs.writeFileSync("./images.json", JSON.stringify(imagesArray));
   });
+  response.writeHead(204);
+  response.end();
 }
 
 //this function checks if the user ID is in users.json file
@@ -56,9 +58,7 @@ function login(request, response) {
     //body is an array of Buffer objects. Buffer.concat(arrayOfBuffers) --> A new Buffer
     //toString() of this gives us the string that was sent in the POST request, which is the stringified object
     const userID = Buffer.concat(body).toString();
-    console.log(userID);
     const usersFile = fs.readFileSync("./users.json");
-    //store images in a file (images.json)
     //right now, it's a string (because JSON is a text file format). so we'll use JSON parse to convert it into an array
     const usersArray = JSON.parse(usersFile);
     if (usersArray.includes(userID)) {
