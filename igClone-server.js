@@ -21,9 +21,19 @@ function signUp(request, response) {
     const usersFile = fs.readFileSync("./users.json");
     //store email addresses in a file (users.json)
     const usersArray = JSON.parse(usersFile);
-    usersArray.push(emailAdd);
-    //the line below will update the file (users.json)
-    fs.writeFileSync("./users.json", JSON.stringify(usersArray));
+    //check if user ID already exists
+    //first if statement - user already exists
+    if (usersArray.includes(emailAdd)) {
+      response.writeHead(422, { "Content-Type": "text" });
+      response.end("user already exists", "utf-8");
+    } else {
+      //if the user id is not in file, add the ID to file (users.json)
+      usersArray.push(emailAdd);
+      //the line below will update the file (users.json)
+      fs.writeFileSync("./users.json", JSON.stringify(usersArray));
+      response.writeHead(200, { "Content-Type": "text" });
+      response.end();
+    }
   });
 }
 

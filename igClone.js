@@ -32,6 +32,18 @@ function signUp() {
       "Content-Type": "application/json"
     },
     body: document.querySelector("#emailAddressInput").value
+  }).then(response => {
+    if (response.status === 200) {
+      //if the userID was unique and was able to sign up successfully, then redirect to the main pg
+      window.history.pushState({}, "", "http://localhost:3000");
+      window.location.reload();
+    } else {
+      //if the userID already exists, then show error message
+      const errorMsg = document.createElement("p");
+      errorMsg.textContent =
+        "User ID already taken. Try to sign up with another User ID or email";
+      document.querySelector("body").appendChild(errorMsg);
+    }
   });
 }
 
@@ -43,12 +55,11 @@ function login() {
     body: document.querySelector("#loginIDInput").value
   }).then(response => {
     if (response.status === 200) {
-      //redirect to main images page
-      //response.text().then(text => console.log("Response text is: ", text));
+      //if the user exists (in users.json), then redirect to main images page
       window.history.pushState({}, "", "http://localhost:3000");
       window.location.reload();
     } else {
-      //show error message
+      //if the user doesn't exist, then show error message
       const errorMsg = document.createElement("p");
       errorMsg.textContent = "User ID/email address does not exist";
       document.querySelector("body").appendChild(errorMsg);
