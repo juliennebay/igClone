@@ -35,17 +35,47 @@ function signUp() {
   });
 }
 
+function login() {
+  //check to see if this name/email address is in the file (users.json)
+  fetch("/login", {
+    method: "POST",
+    headers: { "Content-Tyle": "application/json" },
+    body: document.querySelector("#loginIDInput").value
+  }).then(response => {
+    if (response.status === 200) {
+      //redirect to main images page
+      //response.text().then(text => console.log("Response text is: ", text));
+      window.history.pushState({}, "", "http://localhost:3000");
+      window.location.reload();
+    } else {
+      //show error message
+      const errorMsg = document.createElement("p");
+      errorMsg.textContent = "User ID/email address does not exist";
+      document.querySelector("body").appendChild(errorMsg);
+    }
+  });
+}
+
 function loadScript() {
   const signUpPage = document.querySelector("#signUpPage");
   const imagesPage = document.querySelector("#imagesPage");
+  const loginPage = document.querySelector("#loginPage");
   if (window.location.pathname === "/signup") {
     imagesPage.hidden = true;
     signUpPage.hidden = false;
-    const button = document.querySelector("#button");
-    button.addEventListener("click", signUp);
+    loginPage.hidden = true;
+    const signUpButton = document.querySelector("#signUpButton");
+    signUpButton.addEventListener("click", signUp);
+  } else if (window.location.pathname === "/login") {
+    imagesPage.hidden = true;
+    signUpPage.hidden = true;
+    loginPage.hidden = false;
+    const loginButton = document.querySelector("#loginButton");
+    loginButton.addEventListener("click", login);
   } else {
     imagesPage.hidden = false;
     signUpPage.hidden = true;
+    loginPage.hidden = true;
     const fileInput = document.querySelector("#fileInput");
     fetch("/images") //it'll use the current address, so no need to add "http://localhost:3000/images"
       .then(response => response.json())
