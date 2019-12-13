@@ -20,7 +20,7 @@ function addFile(event) {
       body: e.target.result
     });
   };
-  //this reads the file, and triggers onload event (line 12)
+  //this reads the file, and triggers onload event (line 10)
   fileReader.readAsDataURL(file);
 }
 
@@ -34,8 +34,8 @@ function signUp() {
     body: document.querySelector("#emailAddressInput").value
   }).then(response => {
     if (response.status === 200) {
-      //if the userID was unique and was able to sign up successfully, then redirect to the main pg
-      window.history.pushState({}, "", "http://localhost:3000");
+      //if the userID was unique and was able to sign up successfully, then redirect to the login pg
+      window.history.pushState({}, "", "http://localhost:3000/login");
       window.location.reload();
     } else {
       //if the userID already exists, then show error message

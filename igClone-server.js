@@ -17,9 +17,8 @@ function signUp(request, response) {
     //body is an array of Buffer objects. Buffer.concat(arrayOfBuffers) --> A new Buffer
     //toString() of this gives us the string that was sent in the POST request, which is the stringified object
     const emailAdd = Buffer.concat(body).toString();
-    console.log(emailAdd.slice(0, 50));
     const usersFile = fs.readFileSync("./users.json");
-    //store email addresses in a file (users.json)
+    //access the list of IDs in users.json (file)
     const usersArray = JSON.parse(usersFile);
     //check if user ID already exists
     //first if statement - user already exists
