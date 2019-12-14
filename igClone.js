@@ -55,7 +55,7 @@ function login() {
     body: document.querySelector("#loginIDInput").value
   }).then(response => {
     if (response.status === 200) {
-      //if the user exists (in users.json), then redirect to main images page
+      //if the user exists (in users-images.json), then redirect to main images page
       window.history.pushState({}, "", "http://localhost:3000");
       window.location.reload();
     } else {
