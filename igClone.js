@@ -55,6 +55,10 @@ function login() {
     body: document.querySelector("#loginIDInput").value
   }).then(response => {
     if (response.status === 200) {
+      //add the userID in a cookie
+      document.cookie = `userID=${
+        document.querySelector("#loginIDInput").value
+      }`;
       //if the user exists (in users-images.json), then redirect to main images page
       window.history.pushState({}, "", "http://localhost:3000");
       window.location.reload();
@@ -81,6 +85,9 @@ function loadScript() {
     imagesPage.hidden = true;
     signUpPage.hidden = true;
     loginPage.hidden = false;
+    //clear previous cookies
+    document.cookie =
+      document.cookie + ";expires=Thu, 01 Jan 1970 00:00:01 GMT;'";
     const loginButton = document.querySelector("#loginButton");
     loginButton.addEventListener("click", login);
   } else {

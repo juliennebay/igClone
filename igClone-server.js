@@ -68,14 +68,15 @@ function addImage(request, response) {
     //body is an array of Buffer objects. Buffer.concat(arrayOfBuffers) --> A new Buffer
     //toString() of this gives us the string that was sent in the POST request, which is the stringified object
     const dataURL = Buffer.concat(body).toString();
-    console.log(dataURL.slice(0, 50));
-    const imagesFile = fs.readFileSync("./images.json");
-    //store images in a file (images.json)
+    const usersFile = fs.readFileSync("./users-images.json");
+    //get userID
+    const userID = request.headers.cookie.match(/userID=(.*)/)[1];
+    //store images in a file (users-images.json)
     //right now, it's a string (because JSON is a text file format). so we'll use JSON parse to convert it into an array
-    const imagesArray = JSON.parse(imagesFile);
-    imagesArray.push(dataURL);
+    const usersObj = JSON.parse(usersFile);
+    usersObj[userID].push(dataURL);
     //the line below will update the file (images.json)
-    fs.writeFileSync("./images.json", JSON.stringify(imagesArray));
+    fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
   });
   response.writeHead(204);
   response.end();
@@ -92,18 +93,20 @@ const server = http.createServer((request, response) => {
       addImage(request, response);
     }
   } else if (request.url === "/images") {
-    //this reads images from file & sends it back to the requester
-    const imagesFile = fs.readFileSync("./images.json");
-    const contentType = `application/json`;
-    response.writeHead(200, { "Content-Type": contentType });
-    response.end(imagesFile, "utf-8");
+    //this reads images from file (of the logged in user) & sends it back to the browser
+    const userID = request.headers.cookie.match(/userID=(.*)/)[1];
+    const usersFile = fs.readFileSync("./users-images.json");
+    const usersObj = JSON.parse(usersFile);
+    const usersImages = usersObj[userID];
+    response.writeHead(200, { "Content-Type": `application/json` });
+    response.end(JSON.stringify(usersImages), "utf-8");
   } else {
     const fileName = FILES[path.extname(request.url)] || "index.html";
     const contentType = `text/${path.extname(request.url).replace(".", "") ||
       "html"}`;
     const responseContent = fs.readFileSync(`./${fileName}`);
     response.writeHead(200, { "Content-Type": contentType });
-    response.end(responseContent, "ut f-8");
+    response.end(responseContent, "utf-8");
   }
 });
 
