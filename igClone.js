@@ -4,12 +4,13 @@ function addFile(event) {
   const img = document.createElement("img");
   img.setAttribute("height", "20%");
   img.setAttribute("width", "20%");
+  img.classList.add("image");
 
   const fileReader = new FileReader();
   //note: the event below is the reading of the file
   fileReader.onload = e => {
     img.src = e.target.result;
-    document.querySelector("body").appendChild(img);
+    document.querySelector("#imagesPage").appendChild(img);
 
     //send a POST request to the server, in order to store the image data (e.target.result)
     fetch("/add_image", {
@@ -18,6 +19,11 @@ function addFile(event) {
         "Content-Type": "application/json"
       },
       body: e.target.result
+    }).then(response => {
+      if (response.status === 401) {
+        window.history.pushState({}, "", "http://localhost:3000/login");
+        window.location.reload();
+      }
     });
   };
   //this reads the file, and triggers onload event (line 10)
@@ -55,7 +61,7 @@ function login() {
     body: document.querySelector("#loginIDInput").value
   }).then(response => {
     if (response.status === 200) {
-      //add the userID in a cookie
+      //store the userID in cookie
       document.cookie = `userID=${
         document.querySelector("#loginIDInput").value
       }`;
@@ -96,16 +102,23 @@ function loadScript() {
     loginPage.hidden = true;
     const fileInput = document.querySelector("#fileInput");
     fetch("/images") //it'll use the current address, so no need to add "http://localhost:3000/images"
-      .then(response => response.json())
-      .then(imageURLs => {
-        //for each image, create img element and attach source
-        imageURLs.forEach(imageURL => {
-          const img = document.createElement("img");
-          img.setAttribute("height", "20%");
-          img.setAttribute("width", "20%");
-          img.src = imageURL;
-          document.querySelector("body").appendChild(img);
-        });
+      .then(response => {
+        if (response.status === 200) {
+          return response.json().then(imageURLs => {
+            //for each image, create img element and attach source
+            imageURLs.forEach(imageURL => {
+              const img = document.createElement("img");
+              img.classList.add("image");
+              img.setAttribute("height", "20%");
+              img.setAttribute("width", "20%");
+              img.src = imageURL;
+              document.querySelector("#imagesPage").appendChild(img);
+            });
+          });
+        } else {
+          window.history.pushState({}, "", "http://localhost:3000/login");
+          window.location.reload();
+        }
       });
     fileInput.addEventListener("change", addFile);
   }

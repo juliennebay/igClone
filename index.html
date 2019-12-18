@@ -3,23 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <script src="igClone.js"></script>
-    <!-- <link rel="stylesheet" type="text/css" href="igClone.css" /> --->
+    <link rel="stylesheet" type="text/css" href="igClone.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
   </head>
   <body>
-    <div id="signUpPage">
-      <h1 id="welcome">Welcome, puppies!</h1>
-      <input type="text" id="emailAddressInput" placeholder="email goes here" />
-      <button id="signUpButton">sign up</button>
+    <div
+      id="signUpPage"
+      class="flex-column align-items-center"
+      style="display: flex"
+    >
+      <h1 id="welcome" class="p-3">Welcome, puppies!</h1>
+      <input
+        type="text"
+        id="emailAddressInput"
+        size="35"
+        placeholder="email goes here"
+      />
+      <button id="signUpButton" class="button">sign up</button>
     </div>
-    <div id="loginPage">
+    <div
+      id="loginPage"
+      class="flex-column align-items-center"
+      style="display: flex"
+    >
       <input
         type="text"
         id="loginIDInput"
+        size="35"
         placeholder="login ID/email address"
       />
-      <button id="loginButton">login</button>
+      <button id="loginButton" class="button">login</button>
     </div>
-    <div id="imagesPage">
+    <div
+      id="imagesPage"
+      class="flex-column align-items-center"
+      style="display: flex"
+    >
       <input type="file" id="fileInput" />
     </div>
   </body>
