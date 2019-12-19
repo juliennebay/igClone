@@ -1,5 +1,9 @@
-function deleteImage(imageSrc) {
-  return function deleteClickEventHandler(event) {
+function generateDeleteEventHandler(imageSrc) {
+  //there has to be a function within a function, because:
+  //1. the second argument of add event listener has to be a function
+  //but you don't want the function to run immediately (because we have to CALL the function with img.src)
+  //when you add the image
+  return function deleteImage(event) {
     // We are going make a fetch to the server here instructing
     // it to delete the image that corresponds to imageSrc
     fetch("/delete_image", {
@@ -9,8 +13,13 @@ function deleteImage(imageSrc) {
       },
       body: imageSrc
     }).then(response => {
-      window.history.pushState({}, "", "http://localhost:3000");
-      window.location.reload();
+      if (response.status === 204) {
+        window.history.pushState({}, "", "http://localhost:3000");
+        window.location.reload();
+      } else {
+        window.history.pushState({}, "", "http://localhost:3000/login");
+        window.location.reload();
+      }
     });
   };
 }
@@ -34,7 +43,7 @@ function addFile(event) {
     img.src = e.target.result;
     document.querySelector("#imagesPage").appendChild(img);
     document.querySelector("#imagesPage").appendChild(deleteButton);
-    deleteButton.addEventListener("click", deleteImage(img.src));
+    deleteButton.addEventListener("click", generateDeleteEventHandler(img.src));
 
     //send a POST request to the server, in order to store the image data (e.target.result)
     fetch("/add_image", {
@@ -143,7 +152,10 @@ function loadScript() {
               img.src = imageURL;
               document.querySelector("#imagesPage").appendChild(img);
               document.querySelector("#imagesPage").appendChild(deleteButton);
-              deleteButton.addEventListener("click", deleteImage(img.src));
+              deleteButton.addEventListener(
+                "click",
+                generateDeleteEventHandler(img.src)
+              );
             });
           });
         } else {

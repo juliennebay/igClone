@@ -9,7 +9,7 @@ const FILES = {
   ".css": "igClone.css"
 };
 
-//signup function stores email addresses in a file (users.json)
+//signup function stores email addresses in a file (users-images.json)
 function signUp(request, response) {
   let body = [];
   //chunk is a Buffer object
@@ -37,7 +37,7 @@ function signUp(request, response) {
   });
 }
 
-//this function checks if the user ID is in users.json file
+//this function checks if the user ID is in users-images.json file
 function login(request, response) {
   let body = [];
   //chunk is a Buffer object
@@ -65,7 +65,7 @@ function getUserId(cookie) {
   return cookie && cookie.match(/userID=(.*)/)[1];
 }
 
-//this function stores images in a file (images.json)
+//this function stores images in a file (users-images.json)
 function addImage(request, response) {
   let body = [];
   //chunk is a Buffer object
@@ -95,6 +95,35 @@ function addImage(request, response) {
   });
 }
 
+//this function deletes the selected image & updates users-images.json file
+function deleteImage(request, response) {
+  let body = [];
+  request.on("data", chunk => body.push(chunk));
+  request.on("end", () => {
+    const dataURL = Buffer.concat(body).toString();
+    //get users file
+    const usersFile = fs.readFileSync("./users-images.json");
+    //make it into an object
+    const usersObj = JSON.parse(usersFile);
+    //get the current user ID from cookie
+    const userID = getUserId(request.headers.cookie);
+
+    if (usersObj[userID]) {
+      //get the current images of the user
+      const savedImages = usersObj[userID];
+      const imagesNotToDelete = savedImages.filter(pic => pic !== dataURL);
+      //set the value of the user object to "images not to delete"
+      usersObj[userID] = imagesNotToDelete;
+      fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
+      response.writeHead(204);
+      response.end();
+    } else {
+      response.writeHead(401);
+      response.end();
+    }
+  });
+}
+
 const server = http.createServer((request, response) => {
   console.log("req url: ", request.url, "req method: ", request.method);
   if (request.method === "POST") {
@@ -105,25 +134,7 @@ const server = http.createServer((request, response) => {
     } else if (request.url === "/add_image") {
       addImage(request, response);
     } else if (request.url === "/delete_image") {
-      let body = [];
-      request.on("data", chunk => body.push(chunk));
-      request.on("end", () => {
-        const dataURL = Buffer.concat(body).toString();
-        //get users file
-        const usersFile = fs.readFileSync("./users-images.json");
-        //make it into an object
-        const usersObj = JSON.parse(usersFile);
-        //get the current user ID from cookie
-        const userID = getUserId(request.headers.cookie);
-        //get the current images of the user
-        const savedImages = usersObj[userID];
-        const imagesNotToDelete = savedImages.filter(pic => pic !== dataURL);
-        //set the value of the user object to "images not to delete"
-        usersObj[userID] = imagesNotToDelete;
-        fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
-        response.writeHead(204);
-        response.end();
-      });
+      deleteImage(request, response);
     }
   } else if (request.url === "/images") {
     //this reads images from file (of the logged in user) & sends it back to the browser
