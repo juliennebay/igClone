@@ -1,3 +1,20 @@
+function deleteImage(imageSrc) {
+  return function deleteClickEventHandler(event) {
+    // We are going make a fetch to the server here instructing
+    // it to delete the image that corresponds to imageSrc
+    fetch("/delete_image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "text"
+      },
+      body: imageSrc
+    }).then(response => {
+      window.history.pushState({}, "", "http://localhost:3000");
+      window.location.reload();
+    });
+  };
+}
+
 function addFile(event) {
   const file = event.target.files[0]; // Files object, we are gonna assume length 1
 
@@ -6,11 +23,18 @@ function addFile(event) {
   img.setAttribute("width", "20%");
   img.classList.add("image");
 
+  //delete button
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "Delete";
+  deleteButton.classList.add("deleteButton");
+
   const fileReader = new FileReader();
   //note: the event below is the reading of the file
   fileReader.onload = e => {
     img.src = e.target.result;
     document.querySelector("#imagesPage").appendChild(img);
+    document.querySelector("#imagesPage").appendChild(deleteButton);
+    deleteButton.addEventListener("click", deleteImage(img.src));
 
     //send a POST request to the server, in order to store the image data (e.target.result)
     fetch("/add_image", {
@@ -48,7 +72,7 @@ function signUp() {
       const errorMsg = document.createElement("p");
       errorMsg.textContent =
         "User ID already taken. Try to sign up with another User ID or email";
-      document.querySelector("body").appendChild(errorMsg);
+      document.querySelector("#signUpPage").appendChild(errorMsg);
     }
   });
 }
@@ -72,7 +96,7 @@ function login() {
       //if the user doesn't exist, then show error message
       const errorMsg = document.createElement("p");
       errorMsg.textContent = "User ID/email address does not exist";
-      document.querySelector("body").appendChild(errorMsg);
+      document.querySelector("#loginPage").appendChild(errorMsg);
     }
   });
 }
@@ -107,12 +131,19 @@ function loadScript() {
           return response.json().then(imageURLs => {
             //for each image, create img element and attach source
             imageURLs.forEach(imageURL => {
+              //delete button
+              const deleteButton = document.createElement("button");
+              deleteButton.textContent = "Delete";
+              deleteButton.classList.add("deleteButton");
+
               const img = document.createElement("img");
               img.classList.add("image");
               img.setAttribute("height", "20%");
               img.setAttribute("width", "20%");
               img.src = imageURL;
               document.querySelector("#imagesPage").appendChild(img);
+              document.querySelector("#imagesPage").appendChild(deleteButton);
+              deleteButton.addEventListener("click", deleteImage(img.src));
             });
           });
         } else {

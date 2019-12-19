@@ -104,6 +104,26 @@ const server = http.createServer((request, response) => {
       login(request, response);
     } else if (request.url === "/add_image") {
       addImage(request, response);
+    } else if (request.url === "/delete_image") {
+      let body = [];
+      request.on("data", chunk => body.push(chunk));
+      request.on("end", () => {
+        const dataURL = Buffer.concat(body).toString();
+        //get users file
+        const usersFile = fs.readFileSync("./users-images.json");
+        //make it into an object
+        const usersObj = JSON.parse(usersFile);
+        //get the current user ID from cookie
+        const userID = getUserId(request.headers.cookie);
+        //get the current images of the user
+        const savedImages = usersObj[userID];
+        const imagesNotToDelete = savedImages.filter(pic => pic !== dataURL);
+        //set the value of the user object to "images not to delete"
+        usersObj[userID] = imagesNotToDelete;
+        fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
+        response.writeHead(204);
+        response.end();
+      });
     }
   } else if (request.url === "/images") {
     //this reads images from file (of the logged in user) & sends it back to the browser
@@ -111,14 +131,7 @@ const server = http.createServer((request, response) => {
     const usersFile = fs.readFileSync("./users-images.json");
     const usersObj = JSON.parse(usersFile);
     const usersImages = usersObj[userID];
-    console.log(
-      "userID: ",
-      userID,
-      "usersObj: ",
-      usersObj,
-      "usersImages: ",
-      usersImages
-    );
+
     if (usersImages) {
       response.writeHead(200, { "Content-Type": `application/json` });
       response.end(JSON.stringify(usersImages), "utf-8");
