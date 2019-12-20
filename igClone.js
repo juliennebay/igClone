@@ -14,7 +14,7 @@ function generateDeleteEventHandler(imageSrc) {
       body: imageSrc
     }).then(response => {
       if (response.status === 204) {
-        window.history.pushState({}, "", "http://localhost:3000");
+        // window.history.pushState({}, "", "http://localhost:3000");
         window.location.reload();
       } else {
         window.history.pushState({}, "", "http://localhost:3000/login");
@@ -41,8 +41,8 @@ function addFile(event) {
   //note: the event below is the reading of the file
   fileReader.onload = e => {
     img.src = e.target.result;
-    document.querySelector("#imagesPage").appendChild(img);
-    document.querySelector("#imagesPage").appendChild(deleteButton);
+    document.querySelector("#imagesOnly").prepend(deleteButton);
+    document.querySelector("#imagesOnly").prepend(img);
     deleteButton.addEventListener("click", generateDeleteEventHandler(img.src));
 
     //send a POST request to the server, in order to store the image data (e.target.result)
@@ -137,26 +137,29 @@ function loadScript() {
     fetch("/images") //it'll use the current address, so no need to add "http://localhost:3000/images"
       .then(response => {
         if (response.status === 200) {
-          return response.json().then(imageURLs => {
+          return response.json().then(imageObjs => {
             //for each image, create img element and attach source
-            imageURLs.forEach(imageURL => {
-              //delete button
-              const deleteButton = document.createElement("button");
-              deleteButton.textContent = "Delete";
-              deleteButton.classList.add("deleteButton");
+            //imageObjs = an array of objects (which includes time and image source)
+            imageObjs
+              .sort((a, b) => (b.time > a.time ? 1 : b.time < a.time ? -1 : 0))
+              .forEach(imageObj => {
+                //delete button
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.classList.add("deleteButton");
 
-              const img = document.createElement("img");
-              img.classList.add("image");
-              img.setAttribute("height", "20%");
-              img.setAttribute("width", "20%");
-              img.src = imageURL;
-              document.querySelector("#imagesPage").appendChild(img);
-              document.querySelector("#imagesPage").appendChild(deleteButton);
-              deleteButton.addEventListener(
-                "click",
-                generateDeleteEventHandler(img.src)
-              );
-            });
+                const img = document.createElement("img");
+                img.classList.add("image");
+                img.setAttribute("height", "20%");
+                img.setAttribute("width", "20%");
+                img.src = imageObj.image;
+                document.querySelector("#imagesOnly").appendChild(img);
+                document.querySelector("#imagesOnly").appendChild(deleteButton);
+                deleteButton.addEventListener(
+                  "click",
+                  generateDeleteEventHandler(img.src)
+                );
+              });
           });
         } else {
           window.history.pushState({}, "", "http://localhost:3000/login");

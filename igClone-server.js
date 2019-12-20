@@ -83,7 +83,7 @@ function addImage(request, response) {
     const usersObj = JSON.parse(usersFile);
     //make sure the user is valid
     if (usersObj[userID]) {
-      usersObj[userID].push(dataURL);
+      usersObj[userID].push({ time: new Date().toISOString(), image: dataURL });
       //the line below will update the file (images.json)
       fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
       response.writeHead(204);
@@ -109,9 +109,11 @@ function deleteImage(request, response) {
     const userID = getUserId(request.headers.cookie);
 
     if (usersObj[userID]) {
-      //get the current images of the user
+      //get the current images of the user (array of objects)
       const savedImages = usersObj[userID];
-      const imagesNotToDelete = savedImages.filter(pic => pic !== dataURL);
+      const imagesNotToDelete = savedImages.filter(
+        picObj => picObj.image !== dataURL
+      );
       //set the value of the user object to "images not to delete"
       usersObj[userID] = imagesNotToDelete;
       fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
