@@ -9,7 +9,8 @@ Each user can sign up, login and post images. Unregistered users will be redirec
 
 ## Login and signup
 
-* Users are stored in a file, login and signup either looks for a user or adds a user to this file. Not secure, I know, but will change this eventually
+Users are stored in a JSON file, which stores the user's ID as an object's key. The key's values are stored in an array of objects, which are: the time of posting, image source and comment.
+login and signup either looks for a user or adds a user to this file. (Not secure, I know, but will change this eventually)
 * Current user is stored in an unencrypted cookie
 
 ## Add image and comment (with screenshot)
