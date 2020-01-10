@@ -14,7 +14,6 @@ function generateDeleteEventHandler(imageSrc) {
       body: imageSrc
     }).then(response => {
       if (response.status === 204) {
-        // window.history.pushState({}, "", "http://localhost:3000");
         window.location.reload();
       } else {
         window.history.pushState({}, "", "http://localhost:3000/login");
@@ -25,6 +24,7 @@ function generateDeleteEventHandler(imageSrc) {
 }
 
 function addFile(event) {
+  //event.target is the file input (that thing you click in the input field)
   const file = event.target.files[0]; // Files object, we are gonna assume length 1
 
   const img = document.createElement("img");
@@ -32,35 +32,37 @@ function addFile(event) {
   img.setAttribute("width", "20%");
   img.classList.add("image");
 
-  //delete button
-  const deleteButton = document.createElement("button");
-  deleteButton.textContent = "Delete";
-  deleteButton.classList.add("deleteButton");
-
-  const fileReader = new FileReader();
-  //note: the event below is the reading of the file
+  const fileReader = new FileReader(); //new FileReader returns a fileReader object
+  //note: the event (onload event) below is the reading of the file
   fileReader.onload = e => {
+    //e.target is fileReader
     img.src = e.target.result;
-    document.querySelector("#imagesOnly").prepend(deleteButton);
-    document.querySelector("#imagesOnly").prepend(img);
-    deleteButton.addEventListener("click", generateDeleteEventHandler(img.src));
-
-    //send a POST request to the server, in order to store the image data (e.target.result)
-    fetch("/add_image", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: e.target.result
-    }).then(response => {
-      if (response.status === 401) {
-        window.history.pushState({}, "", "http://localhost:3000/login");
-        window.location.reload();
-      }
-    });
+    img.setAttribute("id", "newImage");
+    document.querySelector("#postImagesPage").prepend(img);
   };
-  //this reads the file, and triggers onload event (line 10)
+  //this reads the file, and triggers onload event (above)
+  //this HAS to be outside onload function
   fileReader.readAsDataURL(file);
+}
+function addImageComment() {
+  //send a POST request to the server, in order to store the image data (e.target.result)
+  fetch("/add_image", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      image: document.querySelector("#newImage").src,
+      comment: document.querySelector("#comment").value
+    })
+  }).then(response => {
+    if (response.status === 401) {
+      window.history.pushState({}, "", "http://localhost:3000/login");
+    } else {
+      window.history.pushState({}, "", "http://localhost:3000");
+    }
+    window.location.reload();
+  });
 }
 
 function signUp() {
@@ -114,32 +116,44 @@ function loadScript() {
   const signUpPage = document.querySelector("#signUpPage");
   const imagesPage = document.querySelector("#imagesPage");
   const loginPage = document.querySelector("#loginPage");
+  const postImagesPage = document.querySelector("#postImagesPage");
   if (window.location.pathname === "/signup") {
     imagesPage.hidden = true;
     signUpPage.hidden = false;
     loginPage.hidden = true;
+    postImagesPage.hidden = true;
     const signUpButton = document.querySelector("#signUpButton");
     signUpButton.addEventListener("click", signUp);
   } else if (window.location.pathname === "/login") {
     imagesPage.hidden = true;
     signUpPage.hidden = true;
     loginPage.hidden = false;
+    postImagesPage.hidden = true;
     //clear previous cookies
     document.cookie =
       document.cookie + ";expires=Thu, 01 Jan 1970 00:00:01 GMT;'";
     const loginButton = document.querySelector("#loginButton");
     loginButton.addEventListener("click", login);
+  } else if (window.location.pathname === "/new") {
+    imagesPage.hidden = true;
+    signUpPage.hidden = true;
+    loginPage.hidden = true;
+    postImagesPage.hidden = false;
+    const fileInput = document.querySelector("#fileInput");
+    const postButton = document.querySelector("#postButton");
+    fileInput.addEventListener("change", addFile);
+    postButton.addEventListener("click", addImageComment);
   } else {
     imagesPage.hidden = false;
     signUpPage.hidden = true;
     loginPage.hidden = true;
-    const fileInput = document.querySelector("#fileInput");
+    postImagesPage.hidden = true;
     fetch("/images") //it'll use the current address, so no need to add "http://localhost:3000/images"
       .then(response => {
         if (response.status === 200) {
           return response.json().then(imageObjs => {
             //for each image, create img element and attach source
-            //imageObjs = an array of objects (which includes time and image source)
+            //imageObjs = an array of objects (which includes time and image source and comment)
             imageObjs
               .sort((a, b) => (b.time > a.time ? 1 : b.time < a.time ? -1 : 0))
               .forEach(imageObj => {
@@ -147,14 +161,18 @@ function loadScript() {
                 const deleteButton = document.createElement("button");
                 deleteButton.textContent = "Delete";
                 deleteButton.classList.add("deleteButton");
-
+                //image
                 const img = document.createElement("img");
                 img.classList.add("image");
                 img.setAttribute("height", "20%");
                 img.setAttribute("width", "20%");
                 img.src = imageObj.image;
-                document.querySelector("#imagesOnly").appendChild(img);
-                document.querySelector("#imagesOnly").appendChild(deleteButton);
+                //comment
+                const comment = document.createElement("p");
+                comment.textContent = imageObj.comment;
+                document.querySelector("#imagesPage").appendChild(img);
+                document.querySelector("#imagesPage").appendChild(comment);
+                document.querySelector("#imagesPage").appendChild(deleteButton);
                 deleteButton.addEventListener(
                   "click",
                   generateDeleteEventHandler(img.src)
@@ -166,7 +184,6 @@ function loadScript() {
           window.location.reload();
         }
       });
-    fileInput.addEventListener("change", addFile);
   }
   //replace the local storage "get items" with getting images from the server
   //(in igClone-server.js, we'll write another "else if" condition)

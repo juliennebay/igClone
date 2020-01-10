@@ -73,7 +73,7 @@ function addImage(request, response) {
   request.on("end", () => {
     //body is an array of Buffer objects. Buffer.concat(arrayOfBuffers) --> A new Buffer
     //toString() of this gives us the string that was sent in the POST request, which is the stringified object
-    const dataURL = Buffer.concat(body).toString();
+    const dataObj = JSON.parse(Buffer.concat(body).toString());
     const usersFile = fs.readFileSync("./users-images.json");
     //get userID
     const userID = getUserId(request.headers.cookie);
@@ -83,7 +83,11 @@ function addImage(request, response) {
     const usersObj = JSON.parse(usersFile);
     //make sure the user is valid
     if (usersObj[userID]) {
-      usersObj[userID].push({ time: new Date().toISOString(), image: dataURL });
+      usersObj[userID].push({
+        time: new Date().toISOString(),
+        image: dataObj.image,
+        comment: dataObj.comment
+      });
       //the line below will update the file (images.json)
       fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
       response.writeHead(204);

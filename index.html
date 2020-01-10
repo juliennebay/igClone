@@ -17,12 +17,19 @@
       class="flex-column align-items-center"
       style="display: flex"
     >
-      <h1 id="welcome" class="p-3">Welcome, puppies!</h1>
+      <h1 id="welcome" class="p-3">Welcome!</h1>
       <input
         type="text"
         id="emailAddressInput"
         size="35"
-        placeholder="email goes here"
+        placeholder="email or username"
+      />
+      <input
+        type="text"
+        id="passwordInput"
+        class="passwordBox"
+        size="35"
+        placeholder="password"
       />
       <button id="signUpButton" class="button">sign up</button>
     </div>
@@ -31,25 +38,41 @@
       class="flex-column align-items-center"
       style="display: flex"
     >
+      <h1 id="welcomeBack" class="p-3">Welcome back!</h1>
       <input
         type="text"
         id="loginIDInput"
         size="35"
-        placeholder="login ID/email address"
+        placeholder="email or username"
+      />
+      <input
+        type="text"
+        id="loginPasswordInput"
+        class="passwordBox"
+        size="35"
+        placeholder="password"
       />
       <button id="loginButton" class="button">login</button>
+    </div>
+    <div
+      id="postImagesPage"
+      class="flex-column align-items-center"
+      style="display: flex"
+    >
+      <input type="file" id="fileInput" />
+      <textarea
+        id="comment"
+        name="comment"
+        rows="2"
+        cols="40"
+        placeholder="Write a caption..."
+      ></textarea>
+      <button id="postButton" class="button">Post!</button>
     </div>
     <div
       id="imagesPage"
       class="flex-column align-items-center"
       style="display: flex"
-    >
-      <input type="file" id="fileInput" />
-      <div
-        id="imagesOnly"
-        class="flex-column align-items-center"
-        style="display: flex"
-      ></div>
-    </div>
+    ></div>
   </body>
 </html>
