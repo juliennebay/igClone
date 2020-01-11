@@ -72,7 +72,10 @@ function signUp() {
     headers: {
       "Content-Type": "application/json"
     },
-    body: document.querySelector("#emailAddressInput").value
+    body: JSON.stringify({
+      id: document.querySelector("#emailAddressInput").value,
+      password: document.querySelector("#passwordInput").value
+    })
   }).then(response => {
     if (response.status === 200) {
       //if the userID was unique and was able to sign up successfully, then redirect to the login pg
@@ -93,7 +96,10 @@ function login() {
   fetch("/login", {
     method: "POST",
     headers: { "Content-Tyle": "application/json" },
-    body: document.querySelector("#loginIDInput").value
+    body: JSON.stringify({
+      id: document.querySelector("#loginIDInput").value,
+      password: document.querySelector("#loginPasswordInput").value
+    })
   }).then(response => {
     if (response.status === 200) {
       //store the userID in cookie
@@ -106,7 +112,7 @@ function login() {
     } else {
       //if the user doesn't exist, then show error message
       const errorMsg = document.createElement("p");
-      errorMsg.textContent = "User ID/email address does not exist";
+      errorMsg.textContent = "Incorrect user ID/email address or password";
       document.querySelector("#loginPage").appendChild(errorMsg);
     }
   });
