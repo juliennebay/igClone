@@ -153,8 +153,8 @@ const server = http.createServer((request, response) => {
     const usersFile = fs.readFileSync("./users-images.json");
     const usersObj = JSON.parse(usersFile);
     const existingUser = usersObj[userID];
-    const usersImages = existingUser.images;
-    if (usersImages) {
+    if (existingUser) {
+      const usersImages = existingUser.images;
       response.writeHead(200, { "Content-Type": `application/json` });
       response.end(JSON.stringify(usersImages), "utf-8");
     } else {

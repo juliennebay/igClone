@@ -154,6 +154,14 @@ function loadScript() {
     signUpPage.hidden = true;
     loginPage.hidden = true;
     postImagesPage.hidden = true;
+    //what happens when you click on "add a photo" button
+    const addButton = document.querySelector("#addSomethingButton");
+    function addPhoto() {
+      window.history.pushState({}, "", "http://localhost:3000/new");
+      window.location.reload();
+    }
+    addButton.addEventListener("click", addPhoto);
+
     fetch("/images") //it'll use the current address, so no need to add "http://localhost:3000/images"
       .then(response => {
         if (response.status === 200) {

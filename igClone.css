@@ -34,3 +34,13 @@
 .passwordBox {
   margin-top: 10px;
 }
+
+#addSomethingButton {
+  height: 30px;
+  width: 130px;
+  margin-top: 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: "Verdana";
+  cursor: pointer;
+}
