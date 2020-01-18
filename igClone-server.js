@@ -3,6 +3,7 @@
 const http = require("http");
 const path = require("path");
 const fs = require("fs");
+const bcrypt = require("bcrypt");
 
 const FILES = {
   ".js": "igClone.js",
@@ -27,15 +28,19 @@ function signUp(request, response) {
       response.writeHead(422, { "Content-Type": "text" });
       response.end("user already exists", "utf-8");
     } else {
-      //if the user id is not in file, add the ID to file (users.json)
-      usersObj[userInfo.id] = {
-        password: userInfo.password,
-        images: []
-      };
-      //the line below will update the file (users-images.json)
-      fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
-      response.writeHead(200, { "Content-Type": "text" });
-      response.end();
+      //hash the password before storing it
+      const password = userInfo.password;
+      bcrypt.hash(password, 10).then(hash => {
+        //if the user id is not in file, add the ID to file (users.json)
+        usersObj[userInfo.id] = {
+          password: hash,
+          images: []
+        };
+        //the line below will update the file (users-images.json)
+        fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
+        response.writeHead(200, { "Content-Type": "text" });
+        response.end();
+      });
     }
   });
 }
@@ -53,15 +58,18 @@ function login(request, response) {
     //right now, it's a string (because JSON is a text file format). so we'll use JSON parse to convert it into an obj
     const usersObj = JSON.parse(usersFile);
     const existingUser = usersObj[userInfo.id];
-    const userPassword = existingUser.password;
-    if (existingUser && userPassword === userInfo.password) {
-      response.writeHead(200, { "Content-Type": "text" });
-      response.end("login successful", "utf-8");
-    } else {
-      //if the user id is not in file
-      response.writeHead(401, { "Content-Type": "text" });
-      response.end("login unsuccessful", "utf-8");
-    }
+    const hashedPassword = existingUser.password;
+    //compare hashed password
+    bcrypt.compare(userInfo.password, hashedPassword).then(result => {
+      if (result) {
+        response.writeHead(200, { "Content-Type": "text" });
+        response.end("login successful", "utf-8");
+      } else {
+        //if the user id is not in file
+        response.writeHead(401, { "Content-Type": "text" });
+        response.end("login unsuccessful", "utf-8");
+      }
+    });
   });
 }
 
