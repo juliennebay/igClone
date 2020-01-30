@@ -1,3 +1,6 @@
+function getUserId(cookie) {
+  return cookie && cookie.match(/userID=(.*)/)[1];
+}
 function generateDeleteEventHandler(imageSrc) {
   //there has to be a function within a function, because:
   //1. the second argument of add event listener has to be a function
@@ -123,11 +126,20 @@ function loadScript() {
   const imagesPage = document.querySelector("#imagesPage");
   const loginPage = document.querySelector("#loginPage");
   const postImagesPage = document.querySelector("#postImagesPage");
+  const otherUsersListPage = document.querySelector("#otherUsersList");
+  const whoAmI = document.querySelector("#whoAmI");
+  //check if the user is logged in
+  const userID = getUserId(document.cookie);
+  if (userID) {
+    whoAmI.textContent = `You're logged in as ${userID}`;
+  }
+
   if (window.location.pathname === "/signup") {
     imagesPage.hidden = true;
     signUpPage.hidden = false;
     loginPage.hidden = true;
     postImagesPage.hidden = true;
+    otherUsersListPage.hidden = true;
     const signUpButton = document.querySelector("#signUpButton");
     signUpButton.addEventListener("click", signUp);
   } else if (window.location.pathname === "/login") {
@@ -135,6 +147,7 @@ function loadScript() {
     signUpPage.hidden = true;
     loginPage.hidden = false;
     postImagesPage.hidden = true;
+    otherUsersListPage.hidden = true;
     //clear previous cookies
     document.cookie =
       document.cookie + ";expires=Thu, 01 Jan 1970 00:00:01 GMT;'";
@@ -145,22 +158,43 @@ function loadScript() {
     signUpPage.hidden = true;
     loginPage.hidden = true;
     postImagesPage.hidden = false;
+    otherUsersListPage.hidden = true;
     const fileInput = document.querySelector("#fileInput");
     const postButton = document.querySelector("#postButton");
     fileInput.addEventListener("change", addFile);
     postButton.addEventListener("click", addImageComment);
+  } else if (window.location.pathname === "/following") {
+    imagesPage.hidden = true;
+    signUpPage.hidden = true;
+    loginPage.hidden = true;
+    postImagesPage.hidden = true;
+    otherUsersListPage.hidden = false;
+    //fetch the user IDs of users who aren't currently logged in
+    fetch("/otherusers").then(response => {
+      return response.json().then(otherUserIDs => {
+        //right now, it's an array of IDs.
+        const ul = document.createElement("ul");
+        otherUserIDs.forEach(userID => {
+          const li = document.createElement("li");
+          //ul.appendChild(li);
+          li.textContent = userID;
+          ul.appendChild(li);
+        });
+        otherUsersListPage.appendChild(ul);
+      });
+    });
   } else {
     imagesPage.hidden = false;
     signUpPage.hidden = true;
     loginPage.hidden = true;
     postImagesPage.hidden = true;
+    otherUsersListPage.hidden = true;
     //what happens when you click on "add a photo" button
     const addButton = document.querySelector("#addSomethingButton");
-    function addPhoto() {
+    addButton.addEventListener("click", () => {
       window.history.pushState({}, "", "http://localhost:3000/new");
       window.location.reload();
-    }
-    addButton.addEventListener("click", addPhoto);
+    });
 
     fetch("/images") //it'll use the current address, so no need to add "http://localhost:3000/images"
       .then(response => {

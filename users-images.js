@@ -88,4 +88,19 @@ function images(request, response) {
   }
 }
 
-module.exports = { addImage, deleteImage, images };
+//this function reads the names of other app users (other than the logged in user) & sends them back to the browser
+//(the "otherUsersList" page)
+function otherUsers(request, response) {
+  //we want to show all the users who are NOT currently logged in
+  const loggedInUserID = getUserId(request.headers.cookie);
+  const usersFile = fs.readFileSync("./users-images.json");
+  const usersObj = JSON.parse(usersFile);
+  //filter out all the users who are NOT logged in
+  const otherUserIDs = Object.keys(usersObj).filter(
+    id => id !== loggedInUserID
+  );
+  response.writeHead(200, { "Content-Type": "application/json" });
+  response.end(JSON.stringify(otherUserIDs), "utf-8");
+}
+
+module.exports = { addImage, deleteImage, images, otherUsers };

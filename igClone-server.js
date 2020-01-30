@@ -9,7 +9,7 @@ const fs = require("fs");
 const { signUp, login } = require("./auth");
 
 //require from users-images.js file
-const { addImage, deleteImage, images } = require("./users-images");
+const { addImage, deleteImage, images, otherUsers } = require("./users-images");
 
 const FILES = {
   ".js": "igClone.js",
@@ -30,6 +30,8 @@ const server = http.createServer((request, response) => {
     }
   } else if (request.url === "/images") {
     images(request, response);
+  } else if (request.url === "/otherusers") {
+    otherUsers(request, response);
   } else {
     const fileName = FILES[path.extname(request.url)] || "index.html";
     const contentType = `text/${path.extname(request.url).replace(".", "") ||
