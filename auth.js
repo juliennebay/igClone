@@ -50,18 +50,25 @@ function login(request, response) {
     //right now, it's a string (because JSON is a text file format). so we'll use JSON parse to convert it into an obj
     const usersObj = JSON.parse(usersFile);
     const existingUser = usersObj[userInfo.id];
-    const hashedPassword = existingUser.password;
-    //compare hashed password
-    bcrypt.compare(userInfo.password, hashedPassword).then(result => {
-      if (result) {
-        response.writeHead(200, { "Content-Type": "text" });
-        response.end("login successful", "utf-8");
-      } else {
-        //if the user id is not in file
-        response.writeHead(401, { "Content-Type": "text" });
-        response.end("login unsuccessful", "utf-8");
-      }
-    });
+    //check if user exists
+    if (existingUser) {
+      const hashedPassword = existingUser.password;
+      //compare hashed password
+      bcrypt.compare(userInfo.password, hashedPassword).then(result => {
+        if (result) {
+          response.writeHead(200, { "Content-Type": "text" });
+          response.end("login successful", "utf-8");
+        } else {
+          //if the password is wrong
+          response.writeHead(401, { "Content-Type": "text" });
+          response.end("login unsuccessful", "utf-8");
+        }
+      });
+    } else {
+      //the user doesn't exist
+      response.writeHead(401, { "Content-Type": "text" });
+      response.end("login unsuccessful", "utf-8");
+    }
   });
 }
 
