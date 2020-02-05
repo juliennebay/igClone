@@ -9,7 +9,14 @@ const fs = require("fs");
 const { signUp, login } = require("./auth");
 
 //require from users-images.js file
-const { addImage, deleteImage, images, otherUsers } = require("./users-images");
+const {
+  addImage,
+  deleteImage,
+  images,
+  otherUsers,
+  followUser,
+  unfollowUser
+} = require("./users-images");
 
 const FILES = {
   ".js": "igClone.js",
@@ -27,6 +34,10 @@ const server = http.createServer((request, response) => {
       addImage(request, response);
     } else if (request.url === "/delete_image") {
       deleteImage(request, response);
+    } else if (request.url === "/follow") {
+      followUser(request, response);
+    } else if (request.url === "/unfollow") {
+      unfollowUser(request, response);
     }
   } else if (request.url === "/images") {
     images(request, response);

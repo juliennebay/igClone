@@ -98,7 +98,7 @@ function login() {
   //check to see if this name/email address is in the file (users.json)
   fetch("/login", {
     method: "POST",
-    headers: { "Content-Tyle": "application/json" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       id: document.querySelector("#loginIDInput").value,
       password: document.querySelector("#loginPasswordInput").value
@@ -118,6 +118,32 @@ function login() {
       errorMsg.textContent = "Incorrect user ID/email address or password";
       document.querySelector("#loginPage").appendChild(errorMsg);
     }
+  });
+}
+
+function followThisUser(event) {
+  const button = event.target;
+  const userId = button.parentElement.querySelector("span").textContent;
+  fetch("/follow", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: userId
+  }).then(() => {
+    //reload page
+    window.location.reload();
+  });
+}
+
+function unfollowThisUser(event) {
+  const button = event.target;
+  const userId = button.parentElement.querySelector("span").textContent;
+  fetch("/unfollow", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: userId
+  }).then(() => {
+    //reload page
+    window.location.reload();
   });
 }
 
@@ -171,14 +197,24 @@ function loadScript() {
     otherUsersListPage.hidden = false;
     //fetch the user IDs of users who aren't currently logged in
     fetch("/otherusers").then(response => {
-      return response.json().then(otherUserIDs => {
-        //right now, it's an array of IDs.
+      return response.json().then(otherUserObjs => {
+        //right now, it's an array of objects (includes the key userID (value - ID) & following (value - t/f)).
         const ul = document.createElement("ul");
-        otherUserIDs.forEach(userID => {
+        otherUserObjs.forEach(userObj => {
           const li = document.createElement("li");
-          //ul.appendChild(li);
-          li.textContent = userID;
+          const followButton = document.createElement("button");
+          followButton.classList.add("followButton");
+          const span = document.createElement("span");
+          span.textContent = userObj.userID;
+          followButton.textContent = userObj.following ? "unfollow" : "follow";
+
           ul.appendChild(li);
+          li.appendChild(span);
+          li.appendChild(followButton);
+          followButton.addEventListener(
+            "click",
+            userObj.following ? unfollowThisUser : followThisUser
+          );
         });
         otherUsersListPage.appendChild(ul);
       });

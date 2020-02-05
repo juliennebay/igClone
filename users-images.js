@@ -96,11 +96,57 @@ function otherUsers(request, response) {
   const usersFile = fs.readFileSync("./users-images.json");
   const usersObj = JSON.parse(usersFile);
   //filter out all the users who are NOT logged in
-  const otherUserIDs = Object.keys(usersObj).filter(
-    id => id !== loggedInUserID
-  );
+  const loggedInUserObj = usersObj[loggedInUserID];
+  const loggedInUserObjFollowing = loggedInUserObj.following;
+  const otherUserObjs = Object.keys(usersObj)
+    .filter(id => id !== loggedInUserID)
+    .map(id => ({
+      userID: id,
+      following: loggedInUserObjFollowing.includes(id)
+    }));
   response.writeHead(200, { "Content-Type": "application/json" });
-  response.end(JSON.stringify(otherUserIDs), "utf-8");
+  response.end(JSON.stringify(otherUserObjs), "utf-8");
 }
 
-module.exports = { addImage, deleteImage, images, otherUsers };
+//this function lets the user "follow" the selected user when a POST request is made
+function followUser(request, response) {
+  const body = [];
+  request.on("data", chunk => body.push(chunk));
+  request.on("end", () => {
+    const userIdToFollow = Buffer.concat(body).toString();
+    const currentUserId = getUserId(request.headers.cookie);
+    const usersFile = fs.readFileSync("./users-images.json");
+    const usersObj = JSON.parse(usersFile);
+    usersObj[currentUserId].following.push(userIdToFollow);
+    fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
+    response.writeHead(204);
+    response.end();
+  });
+}
+
+//unfollow the user when the POST request is made
+function unfollowUser(request, response) {
+  const body = [];
+  request.on("data", chunk => body.push(chunk));
+  request.on("end", () => {
+    const userIdToFollow = Buffer.concat(body).toString();
+    const currentUserId = getUserId(request.headers.cookie);
+    const usersFile = fs.readFileSync("./users-images.json");
+    const usersObj = JSON.parse(usersFile);
+    usersObj[currentUserId].following = usersObj[
+      currentUserId
+    ].following.filter(user => user !== userIdToFollow);
+    fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
+    response.writeHead(204);
+    response.end();
+  });
+}
+
+module.exports = {
+  addImage,
+  deleteImage,
+  images,
+  otherUsers,
+  followUser,
+  unfollowUser
+};

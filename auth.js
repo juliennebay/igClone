@@ -26,7 +26,8 @@ function signUp(request, response) {
         //if the user id is not in file, add the ID to file (users.json)
         usersObj[userInfo.id] = {
           password: hash,
-          images: []
+          images: [],
+          following: []
         };
         //the line below will update the file (users-images.json)
         fs.writeFileSync("./users-images.json", JSON.stringify(usersObj));
