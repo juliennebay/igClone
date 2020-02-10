@@ -153,6 +153,7 @@ function loadScript() {
   const loginPage = document.querySelector("#loginPage");
   const postImagesPage = document.querySelector("#postImagesPage");
   const otherUsersListPage = document.querySelector("#otherUsersList");
+  const myFollowersPage = document.querySelector("#myFollowers");
   const whoAmI = document.querySelector("#whoAmI");
   //check if the user is logged in
   const userID = getUserId(document.cookie);
@@ -166,6 +167,7 @@ function loadScript() {
     loginPage.hidden = true;
     postImagesPage.hidden = true;
     otherUsersListPage.hidden = true;
+    myFollowersPage.hidden = true;
     const signUpButton = document.querySelector("#signUpButton");
     signUpButton.addEventListener("click", signUp);
   } else if (window.location.pathname === "/login") {
@@ -174,6 +176,7 @@ function loadScript() {
     loginPage.hidden = false;
     postImagesPage.hidden = true;
     otherUsersListPage.hidden = true;
+    myFollowersPage.hidden = true;
     //clear previous cookies
     document.cookie =
       document.cookie + ";expires=Thu, 01 Jan 1970 00:00:01 GMT;'";
@@ -185,6 +188,7 @@ function loadScript() {
     loginPage.hidden = true;
     postImagesPage.hidden = false;
     otherUsersListPage.hidden = true;
+    myFollowersPage.hidden = true;
     const fileInput = document.querySelector("#fileInput");
     const postButton = document.querySelector("#postButton");
     fileInput.addEventListener("change", addFile);
@@ -195,6 +199,7 @@ function loadScript() {
     loginPage.hidden = true;
     postImagesPage.hidden = true;
     otherUsersListPage.hidden = false;
+    myFollowersPage.hidden = true;
     //fetch the user IDs of users who aren't currently logged in
     fetch("/otherusers").then(response => {
       return response.json().then(otherUserObjs => {
@@ -219,12 +224,26 @@ function loadScript() {
         otherUsersListPage.appendChild(ul);
       });
     });
+  } else if (window.location.pathname === "/myfollowers") {
+    imagesPage.hidden = true;
+    signUpPage.hidden = true;
+    loginPage.hidden = true;
+    postImagesPage.hidden = true;
+    otherUsersListPage.hidden = true;
+    myFollowersPage.hidden = false;
+    //make a GET request to access the other users ID
+    fetch("/followers").then;
+    //
+    //
+    //
+    //
   } else {
     imagesPage.hidden = false;
     signUpPage.hidden = true;
     loginPage.hidden = true;
     postImagesPage.hidden = true;
     otherUsersListPage.hidden = true;
+    myFollowersPage.hidden = true;
     //what happens when you click on "add a photo" button
     const addButton = document.querySelector("#addSomethingButton");
     addButton.addEventListener("click", () => {
