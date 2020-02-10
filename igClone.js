@@ -6,7 +6,7 @@ function generateDeleteEventHandler(imageSrc) {
   //1. the second argument of add event listener has to be a function
   //but you don't want the function to run immediately (because we have to CALL the function with img.src)
   //when you add the image
-  return function deleteImage(event) {
+  return function deleteImage() {
     // We are going make a fetch to the server here instructing
     // it to delete the image that corresponds to imageSrc
     fetch("/delete_image", {
@@ -41,7 +41,7 @@ function addFile(event) {
     //e.target is fileReader
     img.src = e.target.result;
     img.setAttribute("id", "newImage");
-    document.querySelector("#postImagesPage").prepend(img);
+    document.querySelector("#post").prepend(img);
   };
   //this reads the file, and triggers onload event (above)
   //this HAS to be outside onload function
@@ -89,7 +89,7 @@ function signUp() {
       const errorMsg = document.createElement("p");
       errorMsg.textContent =
         "User ID already taken. Try to sign up with another User ID or email";
-      document.querySelector("#signUpPage").appendChild(errorMsg);
+      document.querySelector("#signup").appendChild(errorMsg);
     }
   });
 }
@@ -116,7 +116,7 @@ function login() {
       //if the user doesn't exist, then show error message
       const errorMsg = document.createElement("p");
       errorMsg.textContent = "Incorrect user ID/email address or password";
-      document.querySelector("#loginPage").appendChild(errorMsg);
+      document.querySelector("#login").appendChild(errorMsg);
     }
   });
 }
@@ -147,59 +147,52 @@ function unfollowThisUser(event) {
   });
 }
 
+//all the html pages that we want to show/hide according to the link
+
+const ROUTE_ID_MAP = {
+  signup: "signup",
+  login: "login",
+  "": "images",
+  post: "post",
+  following: "following",
+  followers: "followers"
+};
+
+const showMatchingPage = () =>
+  //show the page that matches the route, and hide everything else
+  Object.keys(ROUTE_ID_MAP).forEach(route => {
+    const pageId = `#${ROUTE_ID_MAP[route]}`;
+    if (window.location.pathname === `/${route}`) {
+      document.querySelector(pageId).hidden = false;
+    } else {
+      document.querySelector(pageId).hidden = true;
+    }
+  });
+
 function loadScript() {
-  const signUpPage = document.querySelector("#signUpPage");
-  const imagesPage = document.querySelector("#imagesPage");
-  const loginPage = document.querySelector("#loginPage");
-  const postImagesPage = document.querySelector("#postImagesPage");
-  const otherUsersListPage = document.querySelector("#otherUsersList");
-  const myFollowersPage = document.querySelector("#myFollowers");
   const whoAmI = document.querySelector("#whoAmI");
   //check if the user is logged in
   const userID = getUserId(document.cookie);
   if (userID) {
     whoAmI.textContent = `You're logged in as ${userID}`;
   }
+  showMatchingPage();
 
   if (window.location.pathname === "/signup") {
-    imagesPage.hidden = true;
-    signUpPage.hidden = false;
-    loginPage.hidden = true;
-    postImagesPage.hidden = true;
-    otherUsersListPage.hidden = true;
-    myFollowersPage.hidden = true;
     const signUpButton = document.querySelector("#signUpButton");
     signUpButton.addEventListener("click", signUp);
   } else if (window.location.pathname === "/login") {
-    imagesPage.hidden = true;
-    signUpPage.hidden = true;
-    loginPage.hidden = false;
-    postImagesPage.hidden = true;
-    otherUsersListPage.hidden = true;
-    myFollowersPage.hidden = true;
     //clear previous cookies
     document.cookie =
       document.cookie + ";expires=Thu, 01 Jan 1970 00:00:01 GMT;'";
     const loginButton = document.querySelector("#loginButton");
     loginButton.addEventListener("click", login);
-  } else if (window.location.pathname === "/new") {
-    imagesPage.hidden = true;
-    signUpPage.hidden = true;
-    loginPage.hidden = true;
-    postImagesPage.hidden = false;
-    otherUsersListPage.hidden = true;
-    myFollowersPage.hidden = true;
+  } else if (window.location.pathname === "/post") {
     const fileInput = document.querySelector("#fileInput");
     const postButton = document.querySelector("#postButton");
     fileInput.addEventListener("change", addFile);
     postButton.addEventListener("click", addImageComment);
   } else if (window.location.pathname === "/following") {
-    imagesPage.hidden = true;
-    signUpPage.hidden = true;
-    loginPage.hidden = true;
-    postImagesPage.hidden = true;
-    otherUsersListPage.hidden = false;
-    myFollowersPage.hidden = true;
     //fetch the user IDs of users who aren't currently logged in
     fetch("/otherusers").then(response => {
       return response.json().then(otherUserObjs => {
@@ -221,16 +214,10 @@ function loadScript() {
             userObj.following ? unfollowThisUser : followThisUser
           );
         });
-        otherUsersListPage.appendChild(ul);
+        document.querySelector("#following").appendChild(ul);
       });
     });
-  } else if (window.location.pathname === "/myfollowers") {
-    imagesPage.hidden = true;
-    signUpPage.hidden = true;
-    loginPage.hidden = true;
-    postImagesPage.hidden = true;
-    otherUsersListPage.hidden = true;
-    myFollowersPage.hidden = false;
+  } else if (window.location.pathname === "/followers") {
     //make a GET request to access the other users ID
     fetch("/followers").then;
     //
@@ -238,16 +225,10 @@ function loadScript() {
     //
     //
   } else {
-    imagesPage.hidden = false;
-    signUpPage.hidden = true;
-    loginPage.hidden = true;
-    postImagesPage.hidden = true;
-    otherUsersListPage.hidden = true;
-    myFollowersPage.hidden = true;
     //what happens when you click on "add a photo" button
     const addButton = document.querySelector("#addSomethingButton");
     addButton.addEventListener("click", () => {
-      window.history.pushState({}, "", "http://localhost:3000/new");
+      window.history.pushState({}, "", "http://localhost:3000/post");
       window.location.reload();
     });
 
@@ -273,9 +254,9 @@ function loadScript() {
                 //comment
                 const comment = document.createElement("p");
                 comment.textContent = imageObj.comment;
-                document.querySelector("#imagesPage").appendChild(img);
-                document.querySelector("#imagesPage").appendChild(comment);
-                document.querySelector("#imagesPage").appendChild(deleteButton);
+                document.querySelector("#images").appendChild(img);
+                document.querySelector("#images").appendChild(comment);
+                document.querySelector("#images").appendChild(deleteButton);
                 deleteButton.addEventListener(
                   "click",
                   generateDeleteEventHandler(img.src)
