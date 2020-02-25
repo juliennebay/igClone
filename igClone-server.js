@@ -15,7 +15,8 @@ const {
   images,
   otherUsers,
   followUser,
-  unfollowUser
+  unfollowUser,
+  followers
 } = require("./users-images");
 
 const FILES = {
@@ -43,6 +44,8 @@ const server = http.createServer((request, response) => {
     images(request, response);
   } else if (request.url === "/otherusers") {
     otherUsers(request, response);
+  } else if (request.url === "/myfollowers") {
+    followers(request, response);
   } else {
     const fileName = FILES[path.extname(request.url)] || "index.html";
     const contentType = `text/${path.extname(request.url).replace(".", "") ||

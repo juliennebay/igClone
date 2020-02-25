@@ -148,7 +148,6 @@ function unfollowThisUser(event) {
 }
 
 //all the html pages that we want to show/hide according to the link
-
 const ROUTE_ID_MAP = {
   signup: "signup",
   login: "login",
@@ -205,7 +204,7 @@ function loadScript() {
           const span = document.createElement("span");
           span.textContent = userObj.userID;
           followButton.textContent = userObj.following ? "unfollow" : "follow";
-
+          //we have to use span here, because of the buttons
           ul.appendChild(li);
           li.appendChild(span);
           li.appendChild(followButton);
@@ -218,12 +217,19 @@ function loadScript() {
       });
     });
   } else if (window.location.pathname === "/followers") {
-    //make a GET request to access the other users ID
-    fetch("/followers").then;
-    //
-    //
-    //
-    //
+    //make a GET request to access the other users ID who currently follow you
+    //this is returned as an array of names (user IDs)
+    fetch("/myfollowers").then(response => {
+      return response.json().then(usersArr => {
+        const ul = document.createElement("ul");
+        usersArr.forEach(userID => {
+          const li = document.createElement("li");
+          li.textContent = userID;
+          ul.appendChild(li);
+        });
+        document.querySelector("#followers").appendChild(ul);
+      });
+    });
   } else {
     //what happens when you click on "add a photo" button
     const addButton = document.querySelector("#addSomethingButton");

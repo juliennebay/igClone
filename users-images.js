@@ -142,11 +142,27 @@ function unfollowUser(request, response) {
   });
 }
 
+//this function gets the names of other app users who are ALSO following you atm
+//& sends it back to the browser.
+function followers(request, response) {
+  //we want to show all the users who are NOT currently logged in
+  const loggedInUserID = getUserId(request.headers.cookie);
+  const usersFile = fs.readFileSync("./users-images.json");
+  const allUsers = JSON.parse(usersFile);
+  //filter out all the users who are NOT logged in
+  const yourFollowers = Object.keys(allUsers).filter(userID =>
+    allUsers[userID].following.includes(loggedInUserID)
+  );
+  response.writeHead(200, { "Content-Type": "application/json" });
+  response.end(JSON.stringify(yourFollowers), "utf-8");
+}
+
 module.exports = {
   addImage,
   deleteImage,
   images,
   otherUsers,
   followUser,
-  unfollowUser
+  unfollowUser,
+  followers
 };
