@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/juliennebay/igClone#readme",
   "dependencies": {
-    "bcrypt": "^3.0.7"
+    "bcrypt": "^5.0.0"
   }
 }
